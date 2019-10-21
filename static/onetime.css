@@ -1,0 +1,275 @@
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+ 
+.sidebar a.active {
+  background-color: #3b5772;
+  color: white;
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #b0c4de;
+  color: white;
+}
+
+div.main-content {
+  padding: 1px 16px;
+  height: 100%;
+}
+
+.sidebar button:hover:not(.active) {
+  background-color: #b0c4de;
+  color: white;
+  cursor: pointer;
+}
+
+.sidebar button {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+
+h1 {
+    color: navy;
+    text-align:center;
+  }
+
+  h3 {
+    text-align:center;
+  }
+
+  h2 {
+    text-align:center;
+  }
+
+  .img_logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+form {
+    display: grid;
+}
+
+label {
+    margin: auto;
+    margin-top: 2vw;
+}
+
+input {
+    margin: auto;
+    margin-top: 2vw;
+}
+
+textarea {
+  left: 100px;
+  margin-top: 2vw;
+  width: 100%;
+  margin:auto;
+  max-width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+button {
+    margin: auto;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.login-button {
+  padding: 10px;
+  font-size: medium;
+  background: cornflowerblue;
+  width: 150px;
+}
+
+.btn-svg {
+  max-width: 40px;
+  cursor: pointer;
+}
+
+.active-secrets ul {
+  text-align: center;
+}
+
+.sidebar-header h1{
+  font-size: small;
+}
+
+.div_warning {
+    padding: 10px;
+    text-align: center;
+    color: red;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.div-url {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.div_secret_text {
+    width: 60%;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid black;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.left {
+  background-color:#2196F3;
+  padding:20px;
+  float:left;
+  width:20%;
+}
+
+.main {
+  background-color:#b0c4de;
+  padding:20px;
+  float:left;
+  width:60%;
+}
+
+.gitlab-logo {
+  max-height: 20px;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: #b0c4de;
+    color: white;
+    text-align: center;
+    align-items: center;
+    display: grid;
+    grid-template-columns: 25% 75%;
+    
+  }
+
+.footer-info {
+  text-align: left;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.footer-link {
+  margin-right: 15px;
+}
+
+.version-info {
+  padding: 10px;
+  text-align: right;
+  margin-right: 20px;
+}
+
+body {
+    margin: auto;
+}
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.inputfile + label {
+  color: #fff;
+  background-color: #2196F3;
+  padding: 10px;
+}
+
+
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {float: left;}
+  .sidebar button {padding-top: 0px;}
+  div.content {margin-left: 0;}
+  textarea {
+    position: unset;
+    left: unset;
+  }
+  footer {
+    grid-template-columns: unset;
+    grid-template-rows: 25% 25%;
+    text-align: center;
+  }
+  .footer-info {
+    text-align: center;
+    display: grid;
+  }
+  .version-info {
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+  .sidebar button {
+    padding-top: 0px;
+    text-align: center;
+  }
+  textarea {
+    position: unset;
+    left: unset;
+  }
+  footer {
+    grid-template-columns: unset;
+    grid-template-rows: 25% 25%;
+    text-align: center;
+  }
+  .footer-info {
+    text-align: center;
+    display: grid;
+  }
+  .version-info {
+    text-align: center;
+  }
+  #content-wrap {
+    padding-bottom: 20px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  footer {
+    grid-template-columns: unset;
+    grid-template-rows: 25% 25%;
+    text-align: center;
+    position: relative;
+  }
+}

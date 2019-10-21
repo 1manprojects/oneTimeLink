@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" type="text/css" href="../static/onetime.css">
+</head>
+<body>
+    <div id="page-container">
+        <div id="content-wrap">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h1>One-Time-Link</h1>
+                    <img src="{{.Logo}}" height="80" class="img_logo">
+                </div>
+                <a class="active" href="/create">Create</a>
+                <a href="/file">File</a>
+                <a href="/active">Active</a>
+                <form method="post" action="/logout">
+                    <button type="submit">Logout</button>
+                </form>
+            </div>
+            <div class="div_secret_message">
+                <h3>Preview:</h3>
+                <div class="div_secret_text"><span>{{.Secret}}</span></div>
+              </div>
+              <div class="div-url">
+                  <span id="secret-link">{{.Url}}</span>
+                      <div>
+                        <image class="btn-svg" src="../static/clipboard.svg" onclick="copyStringToClipboard()"></image>
+                      </div>
+              </div>
+        </div>
+    <footer>
+            {{.Footer}}
+    </footer> 
+    </div>
+
+    <script>
+        function copyStringToClipboard () {
+       var el = document.createElement('textarea');
+       var url = document.getElementById('secret-link').innerHTML;
+       el.value = url;
+       el.setAttribute('readonly', '');
+       el.style = {position: 'absolute', left: '-9999px'};
+       document.body.appendChild(el);
+       el.select();
+       document.execCommand('copy');
+       document.body.removeChild(el);
+    }
+    </script>
+
+</body>
+</html>

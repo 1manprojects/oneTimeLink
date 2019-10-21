@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" type="text/css" href="../static/onetime.css">
+</head>
+<body>
+    <div id="page-container">
+        <div id="content-wrap">
+            <div class="sidebar">
+                    <div class="sidebar-header">
+                            <h1>One-Time-Link</h1>
+                            <img src="{{.Logo}}" height="80" class="img_logo">
+                    </div>
+                    <a href="/create">Create</a>
+                    <a href="/file">File</a>
+                    <a class="active" href="/active">Active</a>
+                    <form method="post" action="/logout">
+                        <button type="submit">Logout</button>
+                    </form>
+            </div>
+            <div class="main-content">
+                <div class="active-secrets">
+                    <h2>Active Links</h2>
+                    <ul>
+                        {{range .ActiveLinks}}
+                            <li class="li_link">{{.Name}} {{.Type}}: <a href="{{.Url}}">link</a>  Retrivals left:{{.Count}}</li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    <footer>
+            {{.Footer}}
+    </footer> 
+    </div>
+</body>
+</html>

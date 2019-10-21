@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" type="text/css" href="../static/onetime.css">
+</head>
+<body>
+  <div id="page-container">
+    <div id="content-wrap">
+      <div class="div_header">
+          <h1>One-Time-Link</h1>
+          <img src="{{.Logo}}" height="150" class="img_logo">
+      </div>
+      <div class="div_login">
+        <h3>Login</h3>
+        <form method="POST" action="/login">
+          <label for="name">User name</label>
+          <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="name" name="name">
+          <label for="password">Password</label>
+          <input type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="password" name="password">
+          <button class="login-button" type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+    <footer>
+      {{.Footer}}
+    </footer>
+  </div>
+</body>
+</html>

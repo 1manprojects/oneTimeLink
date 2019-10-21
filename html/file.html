@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" type="text/css" href="../static/onetime.css">
+</head>
+<body>
+  <div id="page-container">
+    <div id="content-wrap">
+      <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>One-Time-Link</h1>
+            <img src="{{.Logo}}" height="80" class="img_logo">
+        </div>
+        <a href="/create">Create</a>
+        <a class="active" href="/file">File</a>
+        <a href="/active">Active</a>
+        <form method="post" action="/logout">
+          <button type="submit">Logout</button>
+        </form>
+      </div>
+      <div class="main-content">
+        <div class="div_file">
+          <h2>Upload File</h2>
+          <form enctype="multipart/form-data" method="POST" action="/upload">
+            <label>Description</label>
+            <input name="name" autocomplete="off" type="text" value="" />  
+            <input type="file" name="uploadfile" id="uploadfile" class="inputfile" />
+            <label for="uploadfile">Choose a file</label> 
+            <input type="hidden" name="token" value="{{.}}"/>
+            <label>Valid for x Number</label><input name="filecount" type="number" value="1" />
+            <input type="submit" value="upload" />
+          </form>
+        </div>
+      </div>
+    </div>
+    <footer>
+        {{.Footer}}
+    </footer>
+  </div>
+</body>
+</html>
