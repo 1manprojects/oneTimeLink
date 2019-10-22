@@ -3,7 +3,7 @@
 Easily share passwords, text, and files between people with an easy link for them to visit. Each secret that is created can be limited to a number of visits and all data will be deleted after this limit is reached.
 
 #### Demo
-A demo instance can be found [here](https://demo.1manprojects.de/login)
+A demo instance can be found [here](https://demo.1manprojects.de/login) (Demo might not be available 24/7)
 
 
 Special Thanks to [Christoph](https://github.com/raytracer) who laid the groundwork for this project
