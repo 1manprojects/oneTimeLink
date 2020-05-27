@@ -18,7 +18,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const version = "1.0.0"
+const version = "1.0.1"
 
 var mutex = &sync.Mutex{}
 var conf Config
@@ -72,10 +72,10 @@ func GetActivePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 /*GetGonePage ...*/
-func GetGonePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func GetGonePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, invalidPass bool) {
 	tmpl := template.Must(template.ParseFiles("html/gone.html"))
 	var ActiveLinks []ActiveLink
-	data := pageData{ActiveLinks, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
+	data := invalidPageData{ActiveLinks, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), GetFailurMessage(invalidPass)}
 	tmpl.Execute(w, data)
 }
 
@@ -91,19 +91,46 @@ func GetLoginPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 func LoadSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	link := ps.ByName("link")
 	tmpl := template.Must(template.ParseFiles("html/getsecret.html"))
-	data := secretPageData{link, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
+	isPas := isPasswordProtected(link)
+	fmt.Println("Testing Password " + strconv.FormatBool(isPas))
+	data := secretGetPageData{link, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), template.HTML(BuildPasswordInput(isPas))}
 	tmpl.Execute(w, data)
+}
+
+/*isPasswordProtected ...*/
+func isPasswordProtected(link string) bool {
+	secretData, oks := secretMap[link]
+	if oks {
+		if len(secretData.pass) > 0 {
+			return true
+		}
+		return false
+	}
+	return false
 }
 
 /*GetSecret ...*/
 func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	secretLink := r.FormValue("GetSecret")
+	pass := r.FormValue("password")
+
+	fmt.Println("Testing Password " + pass)
+
 	mutex.Lock()
 	defer mutex.Unlock()
 
 	secretData, oks := secretMap[secretLink]
 	tmpl := template.Must(template.ParseFiles("html/secret.html"))
 	if oks {
+
+		if isPasswordProtected(secretLink) == true {
+			if pass != secretData.pass {
+				fmt.Println("WRONG Password " + pass)
+				GetGonePage(w, r, ps, true)
+				return
+			}
+		}
+
 		if secretData.ofType == File {
 			if FileExits(secretLink + BytesToString(secretData.data)) {
 				w.Header().Set("Content-Disposition", "attachment; filename="+BytesToString(secretData.data))
@@ -118,7 +145,7 @@ func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			tmpl.Execute(w, data)
 		}
 		newCounter := secretData.counter - 1
-		secretMap[secretLink] = Secret{secretData.data, secretData.ofType, newCounter, secretData.name}
+		secretMap[secretLink] = Secret{secretData.data, secretData.ofType, newCounter, secretData.name, secretData.pass}
 		if newCounter < 1 {
 			delete(secretMap, secretLink)
 			if secretData.ofType == File {
@@ -126,7 +153,7 @@ func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			}
 		}
 	} else {
-		GetGonePage(w, r, ps)
+		GetGonePage(w, r, ps, false)
 	}
 }
 
@@ -140,16 +167,20 @@ func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, "Could not read input!")
 	} else {
-		pass := r.FormValue("password")
+		sec := r.FormValue("secret")
 		cou := r.FormValue("count")
 		name := r.FormValue("name")
+		pass := r.FormValue("password")
+
+		fmt.Println("creating with password " + pass)
+
 		c, cerr := strconv.Atoi(cou)
 		if cerr != nil {
 			c = 1
 		}
-		secretMap[u1] = Secret{[]byte(pass), Text, c, name}
+		secretMap[u1] = Secret{[]byte(sec), Text, c, name, pass}
 		tmpl := template.Must(template.ParseFiles("html/preview.html"))
-		secret := template.HTML(pass)
+		secret := template.HTML(sec)
 		data := secretPreviewData{secret, (conf.Url + "/secret/" + u1), conf.Logo,
 			template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
 		tmpl.Execute(w, data)
@@ -196,11 +227,12 @@ func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		name := r.FormValue("name")
 		cou := r.FormValue("filecount")
+		pass := r.FormValue("password")
 		c, cerr := strconv.Atoi(cou)
 		if cerr != nil {
 			c = 1
 		}
-		secretMap[u1] = Secret{[]byte(handler.Filename), File, c, name}
+		secretMap[u1] = Secret{[]byte(handler.Filename), File, c, name, pass}
 
 		tmpl := template.Must(template.ParseFiles("html/preview.html"))
 		fileName := template.HTML("File Uploaded!")
@@ -304,7 +336,6 @@ func main() {
 	router.POST("/secretText", PostTextSecret)
 	router.POST("/upload", Upload)
 	router.POST("/logout", Logout)
-	router.GET("/gone", GetGonePage)
 
 	router.DELETE("/secret/:link", Delete)
 	http.ListenAndServe(":8080", router)

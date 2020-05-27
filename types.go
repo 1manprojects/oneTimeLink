@@ -17,6 +17,7 @@ type Secret struct {
 	ofType  SecretType
 	counter int
 	name    string
+	pass    string
 }
 
 /*Config user ...*/
@@ -43,10 +44,24 @@ type pageData struct {
 	Footer      template.HTML
 }
 
+type invalidPageData struct {
+	ActiveLinks []ActiveLink
+	Logo        string
+	Footer      template.HTML
+	Message     string
+}
+
 type secretPageData struct {
 	Secret string
 	Logo   string
 	Footer template.HTML
+}
+
+type secretGetPageData struct {
+	Secret string
+	Logo   string
+	Footer template.HTML
+	Pass   template.HTML
 }
 
 type secretPreviewData struct {
@@ -54,6 +69,13 @@ type secretPreviewData struct {
 	Url    string
 	Logo   string
 	Footer template.HTML
+}
+
+type getSecretData struct {
+	Secret string
+	Logo   string
+	Footer template.HTML
+	PASS   template.HTML
 }
 
 type secretPageHTMLData struct {

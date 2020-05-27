@@ -55,3 +55,20 @@ func BuildFooter(privacy string, mailto string) string {
 		"</div>"
 	return footer
 }
+
+/*BuildPasswordInput ...*/
+func BuildPasswordInput(protected bool) string {
+	if protected == true {
+		return "<label for=\"password\">Password is required for this secret</label>" +
+			"<input type=\"password\" autocomplete=\"off\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\" id=\"password\" name=\"password\">"
+	}
+	return ""
+}
+
+/*GetFailurMessage ...*/
+func GetFailurMessage(protected bool) string {
+	if protected == false {
+		return "The Information you are trying to access does no longer exists. Either the link is invalid or the Information has alread been retrived. If you have recived this link and see this page please contact the person who proviede you with this link to have a new one sent to you."
+	}
+	return "You have enterd a invalid Password"
+}

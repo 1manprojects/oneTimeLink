@@ -24,11 +24,13 @@
         <h2>Create Secret</h2>
         <form method="POST" action="/secretText">     
           <label>Secret</label>
-          <textarea name="password" rows="10" cols="50" value=""></textarea>
+          <textarea name="secret" rows="10" cols="50" value=""></textarea>
           <label>Valid for x Number</label>
           <input name="count" type="number" value="1" />
           <label>Description</label>
           <input name="name" autocomplete="off" type="text" value="" />
+          <label>Protect with Password</label>
+          <input name="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="password" value="" />
           <input type="submit" value="submit" />
         </form>
       </div>

@@ -29,6 +29,8 @@
             <label for="uploadfile">Choose a file</label> 
             <input type="hidden" name="token" value="{{.}}"/>
             <label>Valid for x Number</label><input name="filecount" type="number" value="1" />
+            <label>Protect with Password</label>
+            <input name="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="password" value="" />
             <input type="submit" value="upload" />
           </form>
         </div>
