@@ -31,10 +31,10 @@ Other options to customize the application are also available
 
 ## Docker
 
-To run OneTimeLink in a Docker container first build the application then build the docker image 
+To run OneTimeLink in a Docker container a image can be created using the build.sh script.
 
 ```bash
-docker build -t onetimelink .
+./ build.sh
 ```
 
 To run just call the following replacing <..> with your variables.
