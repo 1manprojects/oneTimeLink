@@ -50,8 +50,8 @@ func BuildFooter(privacy string, mailto string) string {
 		footer += "<a class=\"footer-link\" href=\"mailto:" + conf.Mail + "\">Contact</a>"
 	}
 	footer += "</div><div class=\"version-info\">" +
-		"<a class=\"footer-link\" href=\"https://1manprojects.de\">Version " + version + "</a>" +
-		//"<img class=\"gitlab-logo\" src=\"../static/GitHub-Mark-64px.png\"></img>" +
+		"<a class=\"footer-link\" href=\"https://github.com/1manprojects/oneTimeLink\">Version " + version + "</a>" +
+		"<img class=\"gitlab-logo\" src=\"../static/GitHub-Mark-64px.png\"></img>" +
 		"</div>"
 	return footer
 }
