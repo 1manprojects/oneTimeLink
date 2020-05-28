@@ -1,5 +1,7 @@
 # OneTimeLink
 
+[![Actions Status](https://github.com/1manprojects/oneTimeLink/workflows/Go/badge.svg)](https://github.com/1manprojects/oneTimeLink/actions)
+
 Easily share passwords, text, and files between people with an easy link for them to visit. Each secret that is created can be limited to a number of visits and all data will be deleted after this limit is reached. 
 
 
