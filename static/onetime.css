@@ -1,3 +1,140 @@
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.div_login{
+  border: 3px solid #f1f1f1;
+  padding: 16px;
+  margin: auto;
+}
+
+.div_secret_text{
+  border: 3px solid #f1f1f1;
+}
+
+.div_secret {
+  padding: 16px;
+  margin: auto;
+}
+
+.div_file {
+  padding: 16px;
+  margin: auto;
+}
+
+.div_secret_message {
+  padding: 16px;
+  margin: auto;
+}
+
+.div_warning {
+  padding: 16px;
+  margin: auto;
+}
+
+.active-secrets{
+  padding: 16px;
+  margin: auto;
+}
+
+.div_header{
+  text-align: center;
+  margin: 24px 0 12px 0;
+}
+
+#content-wrap {
+  padding-bottom: 10%;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+input[type=submit]{
+  background-color: #004da0;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+input[type=number] {
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  margin-right: 50%;
+}
+
+button {
+  background-color: #004da0;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+#secret-link {
+  visibility: hidden;
+}
+
+.img_logo {
+  width: 40%;
+  border-radius: 50%;
+}
+
+footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #b0c4de;
+  color: white;
+  text-align: center;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.btn-svg {
+  max-height: 50px;
+  width: auto;
+  background-color: #004da0;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.gitlab-logo {
+  max-width: auto;
+  height: 15px;
+}
+
 .sidebar {
   margin: 0;
   padding: 0;
@@ -11,365 +148,74 @@
 .sidebar a {
   display: block;
   color: black;
-  padding: 1em;
+  padding: 16px;
   text-decoration: none;
 }
  
 .sidebar a.active {
-  background-color: #3b5772;
+  background-color: #004da0;
   color: white;
 }
 
 .sidebar a:hover:not(.active) {
-  background-color: #b0c4de;
+  background-color: #555;
   color: white;
 }
 
-.main-content {
-  padding: 0.0635em 1em;
-  height: 100%;
-  padding-bottom: 80px;
+.sidebar-header {
+  text-align: center;
+  margin: 24px 0 12px 0;
 }
 
-.sidebar button:hover:not(.active) {
-  background-color: #b0c4de;
+.logoutBtn {
+  background-color: #f44336;
+  font-weight: bold;
   color: white;
-  cursor: pointer;
 }
 
-.sidebar button {
-  display: block;
-  color: black;
-  padding: 1em;
-  text-decoration: none;
-  width: 100%;
-  border: none;
-  text-align: left;
+.main-content{
+  margin-left: 200px;
+  padding: 1px 16px;
 }
 
-h1 {
-    color: navy;
-    text-align:center;
-  }
-
-  h3 {
-    text-align:center;
-  }
-
-  h2 {
-    text-align:center;
-  }
-
-  .img_logo {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-form {
-    display: grid;
-}
-
-label {
-    margin: auto;
-    margin-top: 2vw;
-}
-
-input {
-  color: #777;
-  font-size: 2em;
-  border-radius: 0.625em;
-  border: 2px solid #ccc;
-  padding: 0.3125em;
-  padding-left: 0.625em;
-}
-input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  cursor: pointer;
-  display: block;
-  width: 0.625em;
-  text-align: center;
-  position: relative;
-  background: transparent;
-}
-input[type=number]::-webkit-inner-spin-button::before,
-input[type=number]::-webkit-inner-spin-button::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-bottom: 10px solid #777;
-}
-
-input[type=number]::-webkit-inner-spin-button::before {
-  top: 7px;
-}
-
-input[type=number]::-webkit-inner-spin-button::after {
-  bottom: 7px;
-  transform: rotate(180deg);
-}
-
-textarea {
-  margin-top: 2vw;
-  width: 100%;
-  margin:auto;
-  max-width: 70%;
-  margin-left: auto;
-  margin-right: auto;
-  position: relative;
-  font-size: 2em;
-  border-radius: 0.625em;
-  padding: 0.3125em
-}
-
-button {
-    margin: auto;
-    padding: 0.625em;
-    margin-top: 0.625em;
-}
-
-.div_login {
-  top: 50%;
-  left: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
-}
-
-.div_login form input{
-  text-align: center;
-}
-
-.login-button {
-  padding: 0.625em;
-  font-size: medium;
-  background: cornflowerblue;
-  width: 150px;
-  border-radius: 0.625em;
+@media screen and (max-width: 300px) {
 
 }
 
-.btn-svg {
-  max-width: 40px;
-  cursor: pointer;
-}
-
-.active-secrets ul {
-  text-align: center;
-}
-
-.sidebar-header h1{
-  font-size: small;
-}
-
-.div_warning {
-    padding: 0.625em;
-    text-align: center;
-    color: red;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.div-url {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    padding: 1.25em;
-}
-
-.div_secret_text {
-    width: 60%;
-    padding: 1.25em;
-    text-align: center;
-    border: 2px solid black;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.left {
-  background-color:#2196F3;
-  padding:1.25em;
-  float:left;
-  width:20%;
-}
-
-.main {
-  background-color:#b0c4de;
-  padding:1.25em;
-  float:left;
-  width:60%;
-}
-
-.gitlab-logo {
-  max-height: 20px;
-}
-
-footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: #b0c4de;
-    color: white;
-    text-align: center;
-    align-items: center;
-    display: grid;
-    grid-template-columns: 25% 75%;
-    
-  }
-
-.footer-info {
-  text-align: left;
-  align-items: center;
-  margin-left: 1.25em;
-}
-
-.footer-link {
-  margin-right: 15px;
-}
-
-.version-info {
-  padding: 0.625em;
-  text-align: right;
-  margin-right: 1.25em;
-}
-
-body {
-    margin: auto;
-}
-
-.inputfile {
-	width: 0.1px;
-	height: 0.1px;
-	opacity: 0;
-	overflow: hidden;
-	position: absolute;
-  z-index: -1;
-  border-radius: 0.625em;
-}
-
-.inputfile + label {
-  color: #fff;
-  background-color: #2196F3;
-  padding: 0.625em;
-  border-radius: 0.625em;
-}
-
-
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 700px) {
   .sidebar {
     width: 100%;
     height: auto;
     position: relative;
   }
-
-  .sidebar a {
-    float: left;
-  }
-  
-  .sidebar button {
-    padding-top: 0.625em;
-  }
-  
-  div.content {
-    margin-left: 0;
-  }
-
-  textarea {
-    position: unset;
-    left: unset;
-  }
-  
-  footer {
-    grid-template-columns: unset;
-    grid-template-rows: 25% 25%;
-    text-align: center;
-  }
-  
-  .footer-info {
-    text-align: center;
-    display: grid;
-  }
-  
-  .version-info {
-    text-align: center;
-  }
-  
-  form {
-    width: 100%;
-  }
+  .sidebar a {float: left;}
+  .main-content {margin-left: 0;}
 }
 
-@media screen and (min-width: 501px) {
+@media screen and (max-width: 400px) {
   .sidebar a {
     text-align: center;
     float: none;
   }
-
-  .sidebar button {
-    padding-top: 0.625em;
-    text-align: center;
-  }
-
-  textarea {
-    position: unset;
-    left: unset;
-  }
-
-  .main-content {
-    padding-left: 200px;
-    padding-bottom: 80px;
-  }
-
-  div.div_secret_message {
-    padding-left: 200px;
-  }
-
-  div.div-url {
-    padding-left: 200px;
-  }
-
-  .main-content input {
-    margin: 0.625em;
-  }
-
-  .main-content button {
-    margin: 0.625em;
-  }
-
-  footer {
-    grid-template-columns: unset;
-    grid-template-rows: 25% 25%;
-    text-align: center;
-    position: fixed;
-  }
-
-  .footer-info {
-    text-align: center;
-    display: grid;
-  }
-  
-  .version-info {
-    text-align: center;
-  }
-  
-  #content-wrap {
-    padding-bottom: 80px;
-  }
 }
 
-@media screen and (max-height: 600px) {
-  footer {
-    grid-template-columns: unset;
-    grid-template-rows: 25% 25%;
-    text-align: center;
-    position: relative;
-  }
+@media screen and (min-width: 1000px) {
   .div_login {
-    top: 60%;
+    width: 50%;
   }
-
+  .div_secret{
+    width: 50%;
+  }
+  .div_file{
+    width: 50%;
+  }
+  .div_secret_message {
+    width: 50%;
+  }
+  .active-secrets {
+    width: 50%;
+  }
+  .div_warning {
+    width: 50%;
+  }
 }

@@ -16,7 +16,7 @@
         <a class="active" href="/file">File</a>
         <a href="/active">Active</a>
         <form method="post" action="/logout">
-          <button type="submit">Logout</button>
+          <button class="logoutBtn" type="submit">Logout</button>
         </form>
       </div>
       <div class="main-content">
@@ -25,10 +25,11 @@
           <form enctype="multipart/form-data" method="POST" action="/upload">
             <label>Description</label>
             <input name="name" autocomplete="off" type="text" value="" />  
-            <input type="file" name="uploadfile" id="uploadfile" class="inputfile" />
             <label for="uploadfile">Choose a file</label> 
+            <input type="file" name="uploadfile" id="uploadfile" class="inputfile" />
             <input type="hidden" name="token" value="{{.}}"/>
-            <label>Valid for x Number</label><input name="filecount" type="number" value="1" />
+            <label for="filecount">Valid for x Number of times</label>
+            <input name="filecount" type="number" value="1" />
             <label>Protect with Password</label>
             <input name="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="password" value="" />
             <input type="submit" value="upload" />
