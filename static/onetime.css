@@ -65,6 +65,35 @@ input[type=submit]{
   cursor: pointer;
 }
 
+input[type=checkbox]{
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  width: auto;
+}
+
+.two_check {
+  padding: 12px 20px;
+  margin: 8px 0;
+}
+
+.two-Fa-Check{
+  padding: 16px;
+  margin: auto;
+  font-weight: bold;
+  font-size: xx-large;
+}
+
+.form_get_secret {
+  display: grid;
+}
+
+.form_get_secret span{
+  margin: auto;
+}
+
 input {
   width: 100%;
   padding: 12px 20px;
@@ -92,14 +121,49 @@ button {
   border: none;
   cursor: pointer;
   width: 100%;
+  font-weight: bold;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  background-color: #979797;
 }
 
 #secret-link {
   visibility: hidden;
 }
 
+.pass-label {
+  background-color: #f44336;
+  font-weight: bold;
+  color: white;
+  width: 100%;
+  display: inherit;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.gone-message {
+  background-color: #f44336;
+  font-weight: bold;
+  font-size: xx-large;
+  color: white;
+  width: 100%;
+  display: inherit;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.warning_span {
+  font-weight: bold;
+  font-size: larger;
+  margin: auto;
+}
+
 .img_logo {
-  width: 40%;
+  width: 20%;
   border-radius: 50%;
 }
 
@@ -116,6 +180,16 @@ footer {
 img {
   max-width: 100%;
   height: auto;
+}
+
+.gone-image {
+  padding: 16px;
+  margin: auto;
+}
+
+.gone-image img {
+  max-height: 50px;
+  width: auto;
 }
 
 .btn-svg {
@@ -178,6 +252,21 @@ img {
   padding: 1px 16px;
 }
 
+.li_link {
+  display: grid;
+  grid-template-columns: auto 10% 10% 20% 20% 10% 10%;
+}
+
+.activate_btn{
+  padding: 0;
+  margin: 0;
+}
+.delete_btn {
+  padding: 0;
+  margin: 0;
+  background-color: #f44336;
+}
+
 @media screen and (max-width: 300px) {
 
 }
@@ -216,6 +305,9 @@ img {
     width: 50%;
   }
   .div_warning {
+    width: 50%;
+  }
+  .gone-image{
     width: 50%;
   }
 }

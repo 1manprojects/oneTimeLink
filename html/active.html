@@ -24,7 +24,27 @@
                     <h2>Active Links</h2>
                     <ul>
                         {{range .ActiveLinks}}
-                            <li class="li_link">{{.Name}} {{.Type}}: <a href="{{.Url}}">link</a>  Retrivals left:{{.Count}}</li>
+                            <li class="li_link">
+                                <div>
+                                    {{.Name}}
+                                </div>
+                                <div>
+                                    {{.Type}}
+                                </div>
+                                <a href="{{.Url}}">link</a>
+                                <div>
+                                    Retrivals left: {{.Count}}
+                                </div>
+                                <div>
+                                    Security: {{.TwoFa}}
+                                </div>
+                                <form action="/enablesecret" method="post">
+                                    <button class="activate_btn" name="GetSecret" type="submit" value="{{.Url}}">{{.State}}</button>
+                                </form>
+                                <form action="/deletesecret" method="post">
+                                    <button class="delete_btn" name="DelSecret" type="submit" value="{{.Url}}">delete</button>
+                                </form>
+                            </li>
                         {{end}}
                     </ul>
                 </div>

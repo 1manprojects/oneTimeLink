@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -20,13 +22,36 @@ import (
 
 const version = "1.2.0"
 
-var mutex = &sync.Mutex{}
 var conf Config
-var secretMap = make(map[string]Secret)
+var secretMap = NewSecretMap()
 
 var cookieHandler = securecookie.New(
 	securecookie.GenerateRandomKey(64),
 	securecookie.GenerateRandomKey(32))
+
+type SecretMap struct {
+	sync.RWMutex
+	secrets map[string]Secret
+}
+
+func NewSecretMap() *SecretMap {
+	return &SecretMap{
+		secrets: make(map[string]Secret),
+	}
+}
+
+/*CleanUp ...*/
+func CleanUp() {
+	for {
+		time.Sleep(5000 * time.Millisecond)
+		fmt.Println("cleanUp")
+		secretMap.RLock()
+		for key, value := range secretMap.secrets {
+			fmt.Println(key + " - " + value.name)
+		}
+		secretMap.RUnlock()
+	}
+}
 
 /*GetCreatePage ...*/
 func GetCreatePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -41,7 +66,7 @@ func GetCreatePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 func validateAdmin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if getUserName(r) != conf.User {
 		redirectTarget := "/login"
-		http.Redirect(w, r, redirectTarget, 302)
+		http.Redirect(w, r, redirectTarget, http.StatusFound)
 	}
 }
 
@@ -58,17 +83,59 @@ func GetFilePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func GetActivePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	validateAdmin(w, r, ps)
 	var ActiveLinks []ActiveLink
-	for key, value := range secretMap {
+	secretMap.RLock()
+	for key, value := range secretMap.secrets {
 		url := key
 		count := value.counter
 		name := value.name
 		test := template.URL("/secret/" + url)
-		fmt.Println(test)
-		ActiveLinks = append(ActiveLinks, ActiveLink{GetTypeToString(value.ofType), test, count, name})
+		twoFa := "NONE"
+		if len(value.twoFa) > 0 {
+			twoFa = string([]rune(value.twoFa)[0:5])
+		}
+		if len(value.pass) > 0 {
+			twoFa = "Pass"
+		}
+		//twoFa := string([]rune(value.twoFa)[0:5])
+		state := getState(value)
+		ActiveLinks = append(ActiveLinks, ActiveLink{GetTypeToString(value.ofType), test, count, name, twoFa, state})
 	}
+	secretMap.RUnlock()
 	tmpl := template.Must(template.ParseFiles("html/active.html"))
 	data := pageData{ActiveLinks, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
 	tmpl.Execute(w, data)
+}
+
+/*getState ...*/
+func getState(s Secret) string {
+	if s.isActive {
+		if s.visited {
+			return "reset"
+		}
+		return "active"
+	} else {
+		return "activate"
+	}
+}
+
+func isActive(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	secretMap.RLock()
+	var p idRequest
+	res := new(boolResponse)
+	res.Result = false
+	err := json.NewDecoder(r.Body).Decode(&p)
+	fmt.Println("is Active")
+	if err == nil {
+		secretData, oks := secretMap.secrets[p.Id]
+		if oks {
+			if p.Tfa == secretData.twoFa {
+				res.Result = secretData.isActive
+			}
+		}
+	}
+	secretMap.RUnlock()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
 }
 
 /*GetGonePage ...*/
@@ -92,21 +159,75 @@ func LoadSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	link := ps.ByName("link")
 	tmpl := template.Must(template.ParseFiles("html/getsecret.html"))
 	isPas := isPasswordProtected(link)
-	fmt.Println("Testing Password " + strconv.FormatBool(isPas))
-	data := secretGetPageData{link, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), template.HTML(BuildPasswordInput(isPas))}
+	twoFa := getTowFaValue(link)
+	data := secretGetPageData{link, twoFa, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), template.HTML(BuildPasswordInput(isPas, twoFa))}
 	tmpl.Execute(w, data)
 }
 
 /*isPasswordProtected ...*/
 func isPasswordProtected(link string) bool {
-	secretData, oks := secretMap[link]
+	secretMap.RLock()
+	secretData, oks := secretMap.secrets[link]
+	secretMap.RUnlock()
 	if oks {
-		if len(secretData.pass) > 0 {
-			return true
-		}
-		return false
+		return len(secretData.pass) > 0
 	}
 	return false
+}
+
+/*getTowFaValue ...*/
+func getTowFaValue(link string) string {
+	secretMap.Lock()
+	secretData, oks := secretMap.secrets[link]
+	if oks {
+		if !secretData.visited {
+			newData := secretData
+			newData.visited = true
+			secretMap.secrets[link] = newData
+			secretMap.Unlock()
+			return secretData.twoFa
+		} else {
+			secretMap.Unlock()
+			return uuid.Must(uuid.NewV4()).String()
+		}
+	}
+	secretMap.Unlock()
+	return ""
+}
+
+/*EnableSecret ...*/
+func EnableSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	validateAdmin(w, r, ps)
+	secretMap.Lock()
+	secretLink := r.FormValue("GetSecret")
+	id := strings.Replace(secretLink, "/secret/", "", 1)
+	secretData, oks := secretMap.secrets[id]
+	if oks {
+		if secretData.isActive {
+			u1 := uuid.Must(uuid.NewV4()).String()
+			newData := secretData
+			newData.visited = false
+			secretMap.secrets[u1] = newData
+			delete(secretMap.secrets, id)
+		} else {
+			newData := secretData
+			newData.isActive = true
+			secretMap.secrets[id] = newData
+		}
+	}
+	secretMap.Unlock()
+	GetActivePage(w, r, ps)
+}
+
+/*DeleteSecret ...*/
+func DeleteSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	validateAdmin(w, r, ps)
+	secretMap.Lock()
+	secretLink := r.FormValue("DelSecret")
+	id := strings.Replace(secretLink, "/secret/", "", 1)
+	delete(secretMap.secrets, id)
+	secretMap.Unlock()
+	GetActivePage(w, r, ps)
 }
 
 /*GetSecret ...*/
@@ -114,43 +235,51 @@ func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	secretLink := r.FormValue("GetSecret")
 	pass := r.FormValue("password")
 
-	fmt.Println("Testing Password " + pass)
-
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	secretData, oks := secretMap[secretLink]
+	secretMap.RLock()
+	secretData, oks := secretMap.secrets[secretLink]
+	secretMap.RUnlock()
 	tmpl := template.Must(template.ParseFiles("html/secret.html"))
 	if oks {
-
-		if isPasswordProtected(secretLink) == true {
-			if pass != secretData.pass {
-				fmt.Println("WRONG Password " + pass)
-				GetGonePage(w, r, ps, true)
-				return
+		if secretData.isActive {
+			if isPasswordProtected(secretLink) {
+				if pass != secretData.pass {
+					GetGonePage(w, r, ps, true)
+					return
+				}
 			}
-		}
-
-		if secretData.ofType == File {
-			if FileExits(secretLink + BytesToString(secretData.data)) {
-				w.Header().Set("Content-Disposition", "attachment; filename="+BytesToString(secretData.data))
-				http.ServeFile(w, r, "./uploads/"+secretLink+BytesToString(secretData.data))
-			} else {
-				println("ERROR file does not exist")
+			if len(secretData.twoFa) > 0 {
+				if pass != secretData.twoFa {
+					GetGonePage(w, r, ps, true)
+					return
+				}
 			}
-		}
-		if secretData.ofType == Text {
-			Secret := template.HTML(BytesToString(secretData.data))
-			data := secretPageHTMLData{Secret, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
-			tmpl.Execute(w, data)
-		}
-		newCounter := secretData.counter - 1
-		secretMap[secretLink] = Secret{secretData.data, secretData.ofType, newCounter, secretData.name, secretData.pass}
-		if newCounter < 1 {
-			delete(secretMap, secretLink)
+
 			if secretData.ofType == File {
-				DeleteFileIfExists(secretLink + BytesToString(secretData.data))
+				if FileExits(secretLink + BytesToString(secretData.data)) {
+					w.Header().Set("Content-Disposition", "attachment; filename="+BytesToString(secretData.data))
+					http.ServeFile(w, r, "./uploads/"+secretLink+BytesToString(secretData.data))
+				} else {
+					println("ERROR file does not exist")
+				}
 			}
+			if secretData.ofType == Text {
+				Secret := template.HTML(BytesToString(secretData.data))
+				data := secretPageHTMLData{Secret, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
+				tmpl.Execute(w, data)
+			}
+			secretMap.Lock()
+			newCounter := secretData.counter - 1
+			secretMap.secrets[secretLink] = Secret{secretData.data, secretData.ofType, newCounter, secretData.name, secretData.pass, secretData.twoFa, secretData.isActive, secretData.visited}
+			if newCounter < 1 {
+				delete(secretMap.secrets, secretLink)
+				if secretData.ofType == File {
+					DeleteFileIfExists(secretLink + BytesToString(secretData.data))
+				}
+			}
+			secretMap.Unlock()
+		} else {
+			//todo change to inactive Page
+			GetGonePage(w, r, ps, false)
 		}
 	} else {
 		GetGonePage(w, r, ps, false)
@@ -160,8 +289,6 @@ func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 /*PostTextSecret ...*/
 func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	validateAdmin(w, r, ps)
-
-	//w.Header().Set("Content-Type", "text/plain")
 	u1 := uuid.Must(uuid.NewV4()).String()
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -171,14 +298,19 @@ func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		cou := r.FormValue("count")
 		name := r.FormValue("name")
 		pass := r.FormValue("password")
-
-		fmt.Println("creating with password " + pass)
+		towFe := r.FormValue("2fE") == "true"
+		twoFaString := ""
+		if towFe {
+			twoFaString = uuid.Must(uuid.NewV4()).String()
+		}
 
 		c, cerr := strconv.Atoi(cou)
 		if cerr != nil {
 			c = 1
 		}
-		secretMap[u1] = Secret{[]byte(sec), Text, c, name, pass}
+		secretMap.Lock()
+		secretMap.secrets[u1] = Secret{[]byte(sec), Text, c, name, pass, twoFaString, (len(twoFaString) < 1), false}
+		secretMap.Unlock()
 		tmpl := template.Must(template.ParseFiles("html/preview.html"))
 		secret := template.HTML(sec)
 		data := secretPreviewData{secret, (conf.Url + "/secret/" + u1), conf.Logo,
@@ -192,7 +324,9 @@ func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 func Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "text/plain")
 	link := ps.ByName("link")
-	delete(secretMap, link)
+	secretMap.Lock()
+	delete(secretMap.secrets, link)
+	secretMap.Unlock()
 	io.WriteString(w, "ok")
 }
 
@@ -228,18 +362,24 @@ func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		name := r.FormValue("name")
 		cou := r.FormValue("filecount")
 		pass := r.FormValue("password")
+		towFe := r.FormValue("2fE") == "true"
+		twoFaString := ""
+		if towFe {
+			twoFaString = uuid.Must(uuid.NewV4()).String()
+		}
+
 		c, cerr := strconv.Atoi(cou)
 		if cerr != nil {
 			c = 1
 		}
-		secretMap[u1] = Secret{[]byte(handler.Filename), File, c, name, pass}
-
+		secretMap.Lock()
+		secretMap.secrets[u1] = Secret{[]byte(handler.Filename), File, c, name, pass, twoFaString, (len(twoFaString) < 1), false}
+		secretMap.Unlock()
 		tmpl := template.Must(template.ParseFiles("html/preview.html"))
 		fileName := template.HTML("File Uploaded!")
 		data := secretPreviewData{fileName, (conf.Url + "/secret/" + u1), conf.Logo,
 			template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
 		tmpl.Execute(w, data)
-		io.WriteString(w, conf.Url+"/secret/"+u1)
 	}
 }
 
@@ -255,7 +395,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		setSession(name, w)
 		redirectTarget = "/create"
 	}
-	http.Redirect(w, r, redirectTarget, 302)
+	http.Redirect(w, r, redirectTarget, http.StatusFound)
 }
 
 /*setSession ...*/
@@ -298,7 +438,7 @@ func clearSession(w http.ResponseWriter) {
 /*Logout ...*/
 func Logout(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	clearSession(w)
-	http.Redirect(w, r, "/login", 302)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 func init() {
@@ -322,6 +462,8 @@ func main() {
 		log.Fatal("Exiting, no password was set. Please specify a Password with -p PASSWORD")
 	}
 
+	go CleanUp()
+
 	router := httprouter.New()
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 
@@ -336,7 +478,11 @@ func main() {
 	router.POST("/secretText", PostTextSecret)
 	router.POST("/upload", Upload)
 	router.POST("/logout", Logout)
+	router.POST("/enablesecret", EnableSecret)
+	router.POST("/deletesecret", DeleteSecret)
+	router.POST("/isActive", isActive)
 
 	router.DELETE("/secret/:link", Delete)
 	http.ListenAndServe(":8080", router)
+
 }

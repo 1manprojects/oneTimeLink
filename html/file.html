@@ -30,8 +30,12 @@
             <input type="hidden" name="token" value="{{.}}"/>
             <label for="filecount">Valid for x Number of times</label>
             <input name="filecount" type="number" value="1" />
+            <div class="two_check">
+              <label for="2fE">Enable 2-Factor</label>
+              <input type="checkbox" id="2-Factor-Enabled" name="2fE" value="true" onclick="twoFactor()">
+            </div>
             <label>Protect with Password</label>
-            <input name="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="password" value="" />
+            <input name="password" id="pass-Input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="password" value="" />
             <input type="submit" value="upload" />
           </form>
         </div>
@@ -41,5 +45,16 @@
         {{.Footer}}
     </footer>
   </div>
+  <script>
+    function twoFactor() {
+      var checkBox = document.getElementById("2-Factor-Enabled");
+      var input = document.getElementById("pass-Input");
+      if (checkBox.checked == true){
+        input.disabled = true;
+      } else {
+        input.disabled = false;
+      }
+    }
+    </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 oneTimeLink.conf
 uploads
 .vscode/
+.metals/
 debug
 main.exe
 main

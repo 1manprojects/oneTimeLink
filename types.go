@@ -13,11 +13,14 @@ const (
 
 /*Secret ...*/
 type Secret struct {
-	data    []byte
-	ofType  SecretType
-	counter int
-	name    string
-	pass    string
+	data     []byte
+	ofType   SecretType
+	counter  int
+	name     string
+	pass     string
+	twoFa    string
+	isActive bool
+	visited  bool
 }
 
 /*Config user ...*/
@@ -36,6 +39,8 @@ type ActiveLink struct {
 	Url   template.URL
 	Count int
 	Name  string
+	TwoFa string
+	State string
 }
 
 type pageData struct {
@@ -51,14 +56,9 @@ type invalidPageData struct {
 	Message     string
 }
 
-type secretPageData struct {
-	Secret string
-	Logo   string
-	Footer template.HTML
-}
-
 type secretGetPageData struct {
 	Secret string
+	Tfa    string
 	Logo   string
 	Footer template.HTML
 	Pass   template.HTML
@@ -70,16 +70,17 @@ type secretPreviewData struct {
 	Logo   string
 	Footer template.HTML
 }
-
-type getSecretData struct {
-	Secret string
-	Logo   string
-	Footer template.HTML
-	PASS   template.HTML
-}
-
 type secretPageHTMLData struct {
 	Secret template.HTML
 	Logo   string
 	Footer template.HTML
+}
+
+type boolResponse struct {
+	Result bool `json:"result"`
+}
+
+type idRequest struct {
+	Id  string `json:"Id"`
+	Tfa string `json:"Tfa"`
 }

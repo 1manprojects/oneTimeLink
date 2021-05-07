@@ -28,22 +28,21 @@
         </div>
     <footer>
             {{.Footer}}
-    </footer> 
+    </footer>
     </div>
 
     <script>
         function copyStringToClipboard () {
-       var el = document.createElement('textarea');
-       var url = document.getElementById('secret-link').innerHTML;
-       el.value = url;
-       el.setAttribute('readonly', '');
-       el.style = {position: 'absolute', left: '-9999px'};
-       document.body.appendChild(el);
-       el.select();
-       document.execCommand('copy');
-       document.body.removeChild(el);
-    }
+            var el = document.createElement('textarea');
+            var url = document.getElementById('secret-link').innerHTML;
+            el.value = url;
+            el.setAttribute('readonly', '');
+            el.style = {position: 'absolute', left: '-9999px', visibility: 'hidden'};
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
     </script>
-
 </body>
 </html>
