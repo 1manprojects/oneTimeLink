@@ -58,6 +58,12 @@ func CleanUp() {
 		if len(elements) > 0 {
 			secretMap.Lock()
 			for _, id := range elements {
+				secretData, oks := secretMap.secrets[id]
+				if oks {
+					if secretData.ofType == File {
+						DeleteFileIfExists(id + BytesToString(secretData.data))
+					}
+				}
 				delete(secretMap.secrets, id)
 			}
 			secretMap.Unlock()
@@ -257,6 +263,12 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	secretMap.Lock()
 	secretLink := r.FormValue("DelSecret")
 	id := strings.Replace(secretLink, "/secret/", "", 1)
+	secretData, oks := secretMap.secrets[id]
+	if oks {
+		if secretData.ofType == File {
+			DeleteFileIfExists(id + BytesToString(secretData.data))
+		}
+	}
 	delete(secretMap.secrets, id)
 	secretMap.Unlock()
 	GetActivePage(w, r, ps)
@@ -398,7 +410,7 @@ func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		io.Copy(f, file)
 
 		name := r.FormValue("name")
-		cou := r.FormValue("filecount")
+		cou := r.FormValue("count")
 		pass := r.FormValue("password")
 		validFor := r.FormValue("validFor")
 		towFe := r.FormValue("2fE") == "true"
