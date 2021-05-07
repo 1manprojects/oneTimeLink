@@ -45,7 +45,6 @@ func NewSecretMap() *SecretMap {
 func CleanUp() {
 	for {
 		time.Sleep(30000 * time.Millisecond)
-		fmt.Println("CHECK")
 		elements := []string{}
 		secretMap.RLock()
 		for key, value := range secretMap.secrets {
@@ -177,6 +176,13 @@ func GetLoginPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 /*LoadSecret ...*/
 func LoadSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	fmt.Println("USER-AGENT: " + r.Header.Get("User-Agent"))
+	agent := strings.ToLower(r.Header.Get("User-Agent"))
+	if strings.Contains(agent, "telegram") || strings.Contains(agent, "whatsapp") || strings.Contains(agent, "Synapse ") {
+		io.WriteString(w, "Go away!")
+		return
+	}
+
 	link := ps.ByName("link")
 	tmpl := template.Must(template.ParseFiles("html/getsecret.html"))
 	isPas := isPasswordProtected(link)
@@ -260,7 +266,6 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	secretLink := r.FormValue("GetSecret")
 	pass := r.FormValue("password")
-
 	secretMap.RLock()
 	secretData, oks := secretMap.secrets[secretLink]
 	secretMap.RUnlock()
