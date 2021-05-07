@@ -174,7 +174,8 @@ footer {
   width: 100%;
   background-color: #b0c4de;
   color: white;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 50% 50%;
 }
 
 img {
@@ -254,7 +255,7 @@ img {
 
 .li_link {
   display: grid;
-  grid-template-columns: auto 10% 10% 20% 20% 10% 10%;
+  grid-template-columns: auto 10% 10% 20% 20% 10% 10% 10%;
 }
 
 .activate_btn{
@@ -267,8 +268,20 @@ img {
   background-color: #f44336;
 }
 
-@media screen and (max-width: 300px) {
+.footer-link {
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #555;
+  text-decoration: none;
+  cursor: pointer;
+}
 
+.footer-link:hover{
+  color: black;
+}
+
+.version-info {
+  text-align: right;
 }
 
 @media screen and (max-width: 700px) {
@@ -299,9 +312,6 @@ img {
     width: 50%;
   }
   .div_secret_message {
-    width: 50%;
-  }
-  .active-secrets {
     width: 50%;
   }
   .div_warning {

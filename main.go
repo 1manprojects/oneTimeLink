@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -43,13 +44,25 @@ func NewSecretMap() *SecretMap {
 /*CleanUp ...*/
 func CleanUp() {
 	for {
-		time.Sleep(5000 * time.Millisecond)
-		fmt.Println("cleanUp")
+		time.Sleep(30000 * time.Millisecond)
+		fmt.Println("CHECK")
+		elements := []string{}
 		secretMap.RLock()
 		for key, value := range secretMap.secrets {
-			fmt.Println(key + " - " + value.name)
+			if value.validFor > -1 {
+				if time.Since(value.createdOn) > time.Duration(int(time.Minute)*value.validFor) {
+					elements = append(elements, key)
+				}
+			}
 		}
 		secretMap.RUnlock()
+		if len(elements) > 0 {
+			secretMap.Lock()
+			for _, id := range elements {
+				delete(secretMap.secrets, id)
+			}
+			secretMap.Unlock()
+		}
 	}
 }
 
@@ -89,6 +102,13 @@ func GetActivePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		count := value.counter
 		name := value.name
 		test := template.URL("/secret/" + url)
+		validFor := "-"
+		if value.validFor > -1 {
+			tt := value.createdOn.Add(time.Duration(int(time.Minute) * value.validFor))
+			minutesLeft := time.Now().Sub(tt).Minutes()
+			validFor = strconv.Itoa(1 + (int(minutesLeft) * -1))
+		}
+
 		twoFa := "NONE"
 		if len(value.twoFa) > 0 {
 			twoFa = string([]rune(value.twoFa)[0:5])
@@ -96,11 +116,13 @@ func GetActivePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 		if len(value.pass) > 0 {
 			twoFa = "Pass"
 		}
-		//twoFa := string([]rune(value.twoFa)[0:5])
 		state := getState(value)
-		ActiveLinks = append(ActiveLinks, ActiveLink{GetTypeToString(value.ofType), test, count, name, twoFa, state})
+		ActiveLinks = append(ActiveLinks, ActiveLink{GetTypeToString(value.ofType), test, count, name, twoFa, state, validFor})
 	}
 	secretMap.RUnlock()
+	sort.Slice(ActiveLinks, func(i, j int) bool {
+		return ActiveLinks[i].Name < ActiveLinks[j].Name
+	})
 	tmpl := template.Must(template.ParseFiles("html/active.html"))
 	data := pageData{ActiveLinks, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
 	tmpl.Execute(w, data)
@@ -124,7 +146,6 @@ func isActive(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	res := new(boolResponse)
 	res.Result = false
 	err := json.NewDecoder(r.Body).Decode(&p)
-	fmt.Println("is Active")
 	if err == nil {
 		secretData, oks := secretMap.secrets[p.Id]
 		if oks {
@@ -180,15 +201,20 @@ func getTowFaValue(link string) string {
 	secretMap.Lock()
 	secretData, oks := secretMap.secrets[link]
 	if oks {
-		if !secretData.visited {
-			newData := secretData
-			newData.visited = true
-			secretMap.secrets[link] = newData
-			secretMap.Unlock()
-			return secretData.twoFa
+		if len(secretData.twoFa) > 0 {
+			if !secretData.visited {
+				newData := secretData
+				newData.visited = true
+				secretMap.secrets[link] = newData
+				secretMap.Unlock()
+				return secretData.twoFa
+			} else {
+				secretMap.Unlock()
+				return uuid.Must(uuid.NewV4()).String()
+			}
 		} else {
 			secretMap.Unlock()
-			return uuid.Must(uuid.NewV4()).String()
+			return ""
 		}
 	}
 	secretMap.Unlock()
@@ -203,7 +229,7 @@ func EnableSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	id := strings.Replace(secretLink, "/secret/", "", 1)
 	secretData, oks := secretMap.secrets[id]
 	if oks {
-		if secretData.isActive {
+		if len(secretData.twoFa) > 0 && secretData.isActive {
 			u1 := uuid.Must(uuid.NewV4()).String()
 			newData := secretData
 			newData.visited = false
@@ -269,7 +295,7 @@ func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			}
 			secretMap.Lock()
 			newCounter := secretData.counter - 1
-			secretMap.secrets[secretLink] = Secret{secretData.data, secretData.ofType, newCounter, secretData.name, secretData.pass, secretData.twoFa, secretData.isActive, secretData.visited}
+			secretMap.secrets[secretLink] = Secret{secretData.data, secretData.ofType, newCounter, secretData.name, secretData.pass, secretData.twoFa, secretData.isActive, secretData.visited, time.Now(), -1}
 			if newCounter < 1 {
 				delete(secretMap.secrets, secretLink)
 				if secretData.ofType == File {
@@ -298,18 +324,25 @@ func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		cou := r.FormValue("count")
 		name := r.FormValue("name")
 		pass := r.FormValue("password")
+		validFor := r.FormValue("validFor")
 		towFe := r.FormValue("2fE") == "true"
 		twoFaString := ""
 		if towFe {
 			twoFaString = uuid.Must(uuid.NewV4()).String()
 		}
 
+		v, verr := strconv.Atoi(validFor)
+		if verr != nil || v == 0 {
+			v = -1
+		}
+
 		c, cerr := strconv.Atoi(cou)
-		if cerr != nil {
+		//if no number suplied or twoFactor is enalbe then link is valid only once
+		if cerr != nil || (len(twoFaString) > 0) {
 			c = 1
 		}
 		secretMap.Lock()
-		secretMap.secrets[u1] = Secret{[]byte(sec), Text, c, name, pass, twoFaString, (len(twoFaString) < 1), false}
+		secretMap.secrets[u1] = Secret{[]byte(sec), Text, c, name, pass, twoFaString, (len(twoFaString) < 1), false, time.Now(), v}
 		secretMap.Unlock()
 		tmpl := template.Must(template.ParseFiles("html/preview.html"))
 		secret := template.HTML(sec)
@@ -362,10 +395,16 @@ func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		name := r.FormValue("name")
 		cou := r.FormValue("filecount")
 		pass := r.FormValue("password")
+		validFor := r.FormValue("validFor")
 		towFe := r.FormValue("2fE") == "true"
 		twoFaString := ""
 		if towFe {
 			twoFaString = uuid.Must(uuid.NewV4()).String()
+		}
+
+		v, verr := strconv.Atoi(validFor)
+		if verr != nil || v == 0 {
+			v = -1
 		}
 
 		c, cerr := strconv.Atoi(cou)
@@ -373,7 +412,7 @@ func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			c = 1
 		}
 		secretMap.Lock()
-		secretMap.secrets[u1] = Secret{[]byte(handler.Filename), File, c, name, pass, twoFaString, (len(twoFaString) < 1), false}
+		secretMap.secrets[u1] = Secret{[]byte(handler.Filename), File, c, name, pass, twoFaString, (len(twoFaString) < 1), false, time.Now(), v}
 		secretMap.Unlock()
 		tmpl := template.Must(template.ParseFiles("html/preview.html"))
 		fileName := template.HTML("File Uploaded!")

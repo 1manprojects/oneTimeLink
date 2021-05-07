@@ -1,6 +1,9 @@
 package main
 
-import "html/template"
+import (
+	"html/template"
+	"time"
+)
 
 /*SecretType ...*/
 type SecretType int
@@ -13,14 +16,26 @@ const (
 
 /*Secret ...*/
 type Secret struct {
-	data     []byte
-	ofType   SecretType
-	counter  int
-	name     string
-	pass     string
-	twoFa    string
+	//Secret Data for File
+	data []byte
+	//Type Text or File
+	ofType SecretType
+	//number of times valid
+	counter int
+	//Name of Secret
+	name string
+	//Password for Secret
+	pass string
+	//Two factor verification for User
+	twoFa string
+	//If Link is active or not
 	isActive bool
-	visited  bool
+	//If the Link has been visited but not jet retrived
+	visited bool
+	//Time of creation
+	createdOn time.Time
+	//How many minutes link should be valid
+	validFor int
 }
 
 /*Config user ...*/
@@ -35,12 +50,13 @@ type Config struct {
 
 /*ActiveLink active links ...*/
 type ActiveLink struct {
-	Type  string
-	Url   template.URL
-	Count int
-	Name  string
-	TwoFa string
-	State string
+	Type     string
+	Url      template.URL
+	Count    int
+	Name     string
+	TwoFa    string
+	State    string
+	TimeLeft string
 }
 
 type pageData struct {

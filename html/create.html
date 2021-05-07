@@ -26,7 +26,9 @@
           <label>Secret</label>
           <textarea name="secret" rows="10" cols="50" value=""></textarea>
           <label>Valid for x Number</label>
-          <input name="count" type="number" value="1" />
+          <input name="count" type="number" id="valid-for-Input" value="1" />
+          <label>Valid for x Minutes</label>
+          <input name="validFor" type="number" id="valid-time-Input" value="0" min="0" max="2147483647" step="1"/>
           <label>Description</label>
           <input name="name" autocomplete="off" type="text" value="" />
           <div class="two_check">
@@ -48,9 +50,12 @@
     function twoFactor() {
       var checkBox = document.getElementById("2-Factor-Enabled");
       var input = document.getElementById("pass-Input");
+      var inCa = document.getElementById("valid-for-Input");
       if (checkBox.checked == true){
         input.disabled = true;
+        inCa.disabled = true;
       } else {
+        inCa.disabled = false;
         input.disabled = false;
       }
     }
