@@ -184,7 +184,7 @@ func GetLoginPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 func LoadSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	fmt.Println("USER-AGENT: " + r.Header.Get("User-Agent"))
 	agent := strings.ToLower(r.Header.Get("User-Agent"))
-	if strings.Contains(agent, "telegram") || strings.Contains(agent, "whatsapp") || strings.Contains(agent, "Synapse ") {
+	if strings.Contains(agent, "telegram") || strings.Contains(agent, "whatsapp") || strings.Contains(agent, "synapse") || strings.Contains(agent, "signal") {
 		io.WriteString(w, "Go away!")
 		return
 	}
