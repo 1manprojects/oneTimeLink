@@ -136,7 +136,7 @@ func GetActivePage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 /*getState ...*/
 func getState(s Secret) string {
 	if s.isActive {
-		if s.visited {
+		if len(s.twoFa) > 0 {
 			return "reset"
 		}
 		return "active"
@@ -182,18 +182,28 @@ func GetLoginPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 /*LoadSecret ...*/
 func LoadSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	fmt.Println("USER-AGENT: " + r.Header.Get("User-Agent"))
-	agent := strings.ToLower(r.Header.Get("User-Agent"))
-	if strings.Contains(agent, "telegram") || strings.Contains(agent, "whatsapp") || strings.Contains(agent, "synapse") || strings.Contains(agent, "signal") {
-		io.WriteString(w, "Go away!")
-		return
-	}
-
 	link := ps.ByName("link")
-	tmpl := template.Must(template.ParseFiles("html/getsecret.html"))
 	isPas := isPasswordProtected(link)
-	twoFa := getTowFaValue(link)
-	data := secretGetPageData{link, twoFa, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), template.HTML(BuildPasswordInput(isPas, twoFa))}
+	twoFa := isTowFaValue(link)
+	//if TFA is enabled load diffrent html template
+	if twoFa {
+		tmpl := template.Must(template.ParseFiles("html/authenticatedecret.html"))
+		data := secretAuthData{link, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail))}
+		tmpl.Execute(w, data)
+	} else {
+		tmpl := template.Must(template.ParseFiles("html/getsecret.html"))
+		data := secretGetPageData{link, "", conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), template.HTML(BuildPasswordInput(isPas, ""))}
+		tmpl.Execute(w, data)
+	}
+}
+
+/*LoadSecret ...*/
+func LoadAuthSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	secretLink := r.FormValue("GetSecret")
+	isPas := isPasswordProtected(secretLink)
+	twoFa := getTowFaValue(secretLink)
+	tmpl := template.Must(template.ParseFiles("html/getsecret.html"))
+	data := secretGetPageData{secretLink, twoFa, conf.Logo, template.HTML(BuildFooter(conf.Privacy, conf.Mail)), template.HTML(BuildPasswordInput(isPas, twoFa))}
 	tmpl.Execute(w, data)
 }
 
@@ -206,6 +216,20 @@ func isPasswordProtected(link string) bool {
 		return len(secretData.pass) > 0
 	}
 	return false
+}
+
+/*isTowFaValue ...*/
+func isTowFaValue(link string) bool {
+	secretMap.RLock()
+	secretData, oks := secretMap.secrets[link]
+	res := false
+	if oks {
+		if len(secretData.twoFa) > 0 {
+			res = true
+		}
+	}
+	secretMap.RUnlock()
+	return res
 }
 
 /*getTowFaValue ...*/
@@ -537,6 +561,7 @@ func main() {
 	router.POST("/enablesecret", EnableSecret)
 	router.POST("/deletesecret", DeleteSecret)
 	router.POST("/isActive", isActive)
+	router.POST("/getAuthSecret", LoadAuthSecret)
 
 	router.DELETE("/secret/:link", Delete)
 	http.ListenAndServe(":8080", router)

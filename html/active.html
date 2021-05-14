@@ -23,6 +23,16 @@
                 <div class="active-secrets">
                     <h2>Active Links</h2>
                     <ul>
+                        <li class="li_link">
+                            <h3>Name</h3>
+                            <h3>Type</h3>
+                            <h3>URL</h3>
+                            <h3>Retrivals left</h3>
+                            <h3>TimeLeft (min)</h3>
+                            <h3>Token</h3>
+                            <h3></h3>
+                            <h3></h3>
+                        </li>
                         {{range .ActiveLinks}}
                             <li class="li_link">
                                 <div>
@@ -33,13 +43,13 @@
                                 </div>
                                 <a href="{{.Url}}">link</a>
                                 <div>
-                                    Retrivals left: {{.Count}}
+                                    {{.Count}}
                                 </div>
                                 <div>
-                                    TimeLeft (min): {{.TimeLeft}}
+                                    {{.TimeLeft}}
                                 </div>
                                 <div>
-                                    Security: {{.TwoFa}}
+                                    {{.TwoFa}}
                                 </div>
                                 <form action="/enablesecret" method="post">
                                     <button class="activate_btn" name="GetSecret" type="submit" value="{{.Url}}">{{.State}}</button>

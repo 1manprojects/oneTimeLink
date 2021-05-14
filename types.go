@@ -80,6 +80,12 @@ type secretGetPageData struct {
 	Pass   template.HTML
 }
 
+type secretAuthData struct {
+	Secret string
+	Logo   string
+	Footer template.HTML
+}
+
 type secretPreviewData struct {
 	Secret template.HTML
 	Url    string

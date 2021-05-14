@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" type="text/css" href="../static/onetime.css">
+</head>
+<body>
+  <div id="page-container">
+    <div id="content-wrap">
+      <div class="div_header">
+        <h1>One-Time-Link</h1>
+        <img src="{{.Logo}}" height="150" class="img_logo">
+      </div>
+      <div class="div_secret_message">
+        <h3>Authentication required</h3>
+        <div class="div_secret_text">
+          <form class="form_get_secret" action="/getAuthSecret" method="post">
+            <button name="GetSecret" id="getSecretButton" type="submit" value={{.Secret}}>Authenticate</button>
+          </form>
+        </div>
+      </div>
+      <div class="div_warning">
+        <span>Attention! The secret message can only be viewed for a limited number of times, if you are not the intended recipient please do not retrieve it.</span>
+      </div>
+    </div>
+    <footer>
+        {{.Footer}}
+    </footer>
+  </div>
+  <script>
+  </script>
+</body>
+</html>
