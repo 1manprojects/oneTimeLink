@@ -21,7 +21,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const version = "1.2.0"
+const version = "1.2.1"
 
 var conf Config
 var secretMap = NewSecretMap()

@@ -64,7 +64,7 @@ func BuildPasswordInput(protected bool, twoFa string) string {
 	}
 	if len(twoFa) > 0 {
 		id := []rune(twoFa)
-		return "<span>Please provide the displayed text to the person who provided you with this link. You will be automatically forwarded to your data after confirmation. </span>" +
+		return "<span>Please provide the displayed text to the person who provided you with this link.</span>" +
 			"<label class=\"two-Fa-Check\" id=\"two-Fa-CheckLabel\">" + string(id[0:5]) + "</label>" +
 			"<input id=\"password\" name=\"password\" type=\"hidden\" value=\"" + twoFa + "\"></input>" +
 			"<span class=\"warning_span\">Do not reload this page or close the window!</span>"

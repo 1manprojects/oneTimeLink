@@ -284,6 +284,11 @@ img {
   text-align: right;
 }
 
+.gitlab-logo {
+  max-height: 20px;
+}
+
+
 @media screen and (max-width: 700px) {
   .sidebar {
     width: 100%;
