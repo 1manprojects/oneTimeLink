@@ -246,7 +246,8 @@ func getTowFaValue(link string) string {
 				return secretData.twoFa
 			} else {
 				secretMap.Unlock()
-				return uuid.Must(uuid.NewV4()).String()
+				return uuid.NewV4().String()
+				//return uuid.Must(uuid.NewV4(), nil).String()
 			}
 		} else {
 			secretMap.Unlock()
@@ -266,7 +267,8 @@ func EnableSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	secretData, oks := secretMap.secrets[id]
 	if oks {
 		if len(secretData.twoFa) > 0 && secretData.isActive {
-			u1 := uuid.Must(uuid.NewV4()).String()
+			u1 := uuid.NewV4().String()
+			//uuid.Must(uuid.NewV4(), nil).String()
 			newData := secretData
 			newData.visited = false
 			secretMap.secrets[u1] = newData
@@ -356,7 +358,8 @@ func GetSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 /*PostTextSecret ...*/
 func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	validateAdmin(w, r, ps)
-	u1 := uuid.Must(uuid.NewV4()).String()
+	u1 := uuid.NewV4().String()
+	//uuid.Must(uuid.NewV4(), nil).String()
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, "Could not read input!")
@@ -369,7 +372,8 @@ func PostTextSecret(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 		towFe := r.FormValue("2fE") == "true"
 		twoFaString := ""
 		if towFe {
-			twoFaString = uuid.Must(uuid.NewV4()).String()
+			twoFaString = uuid.NewV4().String()
+			//uuid.Must(uuid.NewV4(), nil).String()
 		}
 
 		v, verr := strconv.Atoi(validFor)
@@ -408,7 +412,8 @@ func Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	validateAdmin(w, r, ps)
 
-	u1 := uuid.Must(uuid.NewV4()).String()
+	u1 := uuid.NewV4().String()
+	//uuid.Must(uuid.NewV4(), nil).String()
 	if r.Method == "GET" {
 		crutime := time.Now().Unix()
 		h := md5.New()
@@ -440,7 +445,8 @@ func Upload(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		towFe := r.FormValue("2fE") == "true"
 		twoFaString := ""
 		if towFe {
-			twoFaString = uuid.Must(uuid.NewV4()).String()
+			twoFaString = uuid.NewV4().String()
+			//uuid.Must(uuid.NewV4(), nil).String()
 		}
 
 		v, verr := strconv.Atoi(validFor)
